@@ -1,1 +1,2937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestiReformas - Gestión de Reformas</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #e67e22;
+            --accent-hover: #d35400;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --bg: #ecf0f1;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #dfe6e9;
+            --shadow: 0 2px 15px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header span {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .nav-menu {
+            padding: 15px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.12);
+            border-left-color: var(--accent);
+        }
+
+        .nav-item .icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-section-title {
+            padding: 20px 25px 8px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.5;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: var(--card);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 8px 15px;
+            gap: 8px;
+            min-width: 280px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            width: 100%;
+            color: var(--text);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 22px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .stat-info p {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.blue { background: #ebf5fb; color: var(--info); }
+        .stat-icon.green { background: #eafaf1; color: var(--success); }
+        .stat-icon.orange { background: #fef5e7; color: var(--accent); }
+        .stat-icon.red { background: #fdedec; color: var(--danger); }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-trend.up { color: var(--success); }
+        .stat-trend.down { color: var(--danger); }
+
+        /* CARDS & TABLES */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        table th {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        /* BADGES */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-pending { background: #fef5e7; color: var(--warning); }
+        .badge-progress { background: #ebf5fb; color: var(--info); }
+        .badge-completed { background: #eafaf1; color: var(--success); }
+        .badge-cancelled { background: #fdedec; color: var(--danger); }
+        .badge-budget { background: #f4ecf7; color: #8e44ad; }
+
+        /* BUTTONS */
+        .btn {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 60px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: var(--radius);
+            width: 95%;
+            max-width: 650px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 40px;
+            animation: modalIn 0.3s;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.15rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 15px 25px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* FORMS */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: border 0.3s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        select.form-control {
+            appearance: auto;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            background: var(--bg);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .progress-fill.blue { background: var(--info); }
+        .progress-fill.green { background: var(--success); }
+        .progress-fill.orange { background: var(--accent); }
+        .progress-fill.red { background: var(--danger); }
+
+        /* PROJECT CARDS */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+        }
+
+        .project-card-top {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .project-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .project-card-client {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .project-card-body {
+            padding: 20px;
+        }
+
+        .project-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .project-meta-item {
+            font-size: 0.82rem;
+        }
+
+        .project-meta-item span {
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.75rem;
+        }
+
+        .project-card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* TASKS */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .task-check.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-content.done .task-title {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        .task-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .task-details {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-top: 2px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .priority-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .priority-high { background: var(--danger); }
+        .priority-medium { background: var(--warning); }
+        .priority-low { background: var(--success); }
+
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 25px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -26px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--info);
+            background: var(--info);
+        }
+
+        .timeline-date {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .timeline-content {
+            font-size: 0.9rem;
+        }
+
+        /* CHARTS PLACEHOLDER */
+        .chart-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-card {
+            flex: 1;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .chart-card h3 {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 180px;
+            padding-top: 10px;
+        }
+
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar {
+            width: 100%;
+            max-width: 40px;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s;
+        }
+
+        .bar-label {
+            font-size: 0.72rem;
+            color: var(--text-light);
+        }
+
+        .bar-value {
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .donut-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .donut-svg {
+            width: 150px;
+            height: 150px;
+            transform: rotate(-90deg);
+        }
+
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* MATERIALES */
+        .material-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .material-stat {
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .material-stat h4 {
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .material-stat p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar select, .filter-bar input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: white;
+            color: var(--text);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .search-box {
+                min-width: auto;
+                flex: 1;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            table th, table td {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .tab:hover {
+            color: var(--text);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            z-index: 3000;
+            animation: slideIn 0.3s, slideOut 0.3s 2.7s forwards;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .notification.success { background: var(--success); }
+        .notification.error { background: var(--danger); }
+        .notification.info { background: var(--info); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Amount formatting */
+        .amount {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .amount.positive { color: var(--success); }
+        .amount.negative { color: var(--danger); }
+
+        /* Detail view */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item label {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .info-item p {
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            transition: color 0.3s;
+        }
+
+        .back-btn:hover {
+            color: var(--text);
+        }
+
+        /* Calendario */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            padding: 8px;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 0.8rem;
+        }
+
+        .calendar-day.today {
+            border-color: var(--accent);
+        }
+
+        .calendar-day .day-number {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .calendar-event {
+            background: var(--info);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.68rem;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-event.completed { background: var(--success); }
+        .calendar-event.pending { background: var(--warning); }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h1>🏗️ GestiReformas</h1>
+        <span>Panel de Gestión v2.0</span>
+    </div>
+    <div class="nav-menu">
+        <div class="nav-section-title">Principal</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+            <span class="icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('proyectos')">
+            <span class="icon">🏠</span> Proyectos
+        </div>
+        <div class="nav-item" onclick="showPage('clientes')">
+            <span class="icon">👥</span> Clientes
+        </div>
+
+        <div class="nav-section-title">Gestión</div>
+        <div class="nav-item" onclick="showPage('presupuestos')">
+            <span class="icon">💰</span> Presupuestos
+        </div>
+        <div class="nav-item" onclick="showPage('tareas')">
+            <span class="icon">✅</span> Tareas
+        </div>
+        <div class="nav-item" onclick="showPage('materiales')">
+            <span class="icon">🧱</span> Materiales
+        </div>
+
+        <div class="nav-section-title">Informes</div>
+        <div class="nav-item" onclick="showPage('calendario')">
+            <span class="icon">📅</span> Calendario
+        </div>
+        <div class="nav-item" onclick="showPage('informes')">
+            <span class="icon">📈</span> Informes
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Buscar proyectos, clientes..." id="globalSearch" onkeyup="globalSearchHandler(event)">
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="user-info">
+                <div class="user-avatar">JR</div>
+                <span style="font-size:0.9rem; font-weight:500;">Juan Reformas</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Resumen general de tu negocio</p>
+
+            <div class="stats-grid" id="dashboardStats"></div>
+
+            <div class="chart-container">
+                <div class="chart-card">
+                    <h3>📊 Ingresos Mensuales (€)</h3>
+                    <div class="bar-chart" id="barChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h3>📋 Estado de Proyectos</h3>
+                    <div class="donut-chart" id="donutChart"></div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🕐 Actividad Reciente</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline" id="recentTimeline"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>⚡ Tareas Pendientes</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="task-list" id="dashboardTasks"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROYECTOS -->
+        <div class="page" id="page-proyectos">
+            <div id="proyectos-list-view">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                    <div>
+                        <h1 class="page-title">Proyectos</h1>
+                        <p class="page-subtitle">Gestión de reformas y obras</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('project')">➕ Nuevo Proyecto</button>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="filterStatus" onchange="renderProjects()">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_progreso">En Progreso</option>
+                        <option value="completado">Completado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                    <select id="filterClient" onchange="renderProjects()">
+                        <option value="">Todos los clientes</option>
+                    </select>
+                </div>
+
+                <div class="projects-grid" id="projectsGrid"></div>
+            </div>
+
+            <div id="proyecto-detail-view" style="display:none;"></div>
+        </div>
+
+        <!-- CLIENTES -->
+        <div class="page" id="page-clientes">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                <div>
+                    <h1 class="page-title">Clientes</h1>
+                    <p class="page-subtitle">Base de datos de clientes</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('client')">➕ Nuevo Cliente</button>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Dirección</th>
+                                <th>Proyectos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRESUPUESTOS -->
+        <div class="page" id="page-presupuestos">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                <div>
+                    <h1 class="page-title">Presupuestos</h1>
+                    <p class="page-subtitle">Control de costes y presupuestos</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('budget')">➕ Nuevo Presupuesto</button>
+            </div>
+
+            <div class="stats-grid" id="budgetStats"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nº</th>
+                                <th>Proyecto</th>
+                                <th>Cliente</th>
+                                <th>Importe</th>
+                                <th>Coste Real</th>
+                                <th>Margen</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budgetsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAREAS -->
+        <div class="page" id="page-tareas">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                <div>
+                    <h1 class="page-title">Tareas</h1>
+                    <p class="page-subtitle">Seguimiento de actividades</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('task')">➕ Nueva Tarea</button>
+            </div>
+
+            <div class="filter-bar">
+                <select id="filterTaskProject" onchange="renderTasks()">
+                    <option value="">Todos los proyectos</option>
+                </select>
+                <select id="filterTaskStatus" onchange="renderTasks()">
+                    <option value="">Todos</option>
+                    <option value="pending">Pendientes</option>
+                    <option value="done">Completadas</option>
+                </select>
+                <select id="filterTaskPriority" onchange="renderTasks()">
+                    <option value="">Todas las prioridades</option>
+                    <option value="alta">Alta</option>
+                    <option value="media">Media</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <ul class="task-list" id="tasksList"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- MATERIALES -->
+        <div class="page" id="page-materiales">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                <div>
+                    <h1 class="page-title">Materiales</h1>
+                    <p class="page-subtitle">Control de materiales y costes</p>
+                </div>
+                <button class="btn btn-primary" onclick="openModal('material')">➕ Nuevo Material</button>
+            </div>
+
+            <div class="material-summary" id="materialSummary"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Categoría</th>
+                                <th>Proyecto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Total</th>
+                                <th>Proveedor</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- CALENDARIO -->
+        <div class="page" id="page-calendario">
+            <h1 class="page-title">Calendario</h1>
+            <p class="page-subtitle">Vista de planificación</p>
+
+            <div class="card">
+                <div class="card-header">
+                    <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">◀ Anterior</button>
+                    <h2 id="calendarTitle"></h2>
+                    <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">Siguiente ▶</button>
+                </div>
+                <div class="card-body">
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMES -->
+        <div class="page" id="page-informes">
+            <h1 class="page-title">Informes</h1>
+            <p class="page-subtitle">Análisis y estadísticas del negocio</p>
+
+            <div class="stats-grid" id="reportStats"></div>
+
+            <div class="chart-container">
+                <div class="chart-card">
+                    <h3>💰 Rentabilidad por Proyecto</h3>
+                    <div id="profitChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h3>🧱 Coste por Categoría de Material</h3>
+                    <div id="materialCategoryChart"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>📋 Resumen de Proyectos</h2>
+                    <button class="btn btn-outline btn-sm" onclick="exportReport()">📥 Exportar</button>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Proyecto</th>
+                                <th>Cliente</th>
+                                <th>Presupuesto</th>
+                                <th>Gastado</th>
+                                <th>Materiales</th>
+                                <th>Margen</th>
+                                <th>Progreso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle"></h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmOverlay">
+    <div class="modal" style="max-width:400px;">
+        <div class="modal-header">
+            <h2>⚠️ Confirmar</h2>
+            <button class="modal-close" onclick="closeConfirm()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeConfirm()">Cancelar</button>
+            <button class="btn btn-danger" id="confirmBtn">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============ DATA STORE ============
+const DB_KEY = 'gestireformas_db';
+
+function getDB() {
+    const data = localStorage.getItem(DB_KEY);
+    if (data) return JSON.parse(data);
+    return initDB();
+}
+
+function saveDB(db) {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+function initDB() {
+    const db = {
+        clients: [
+            { id: 1, name: 'María García López', email: 'maria@email.com', phone: '612 345 678', address: 'Calle Mayor 15, Madrid', notes: 'Cliente preferencial' },
+            { id: 2, name: 'Carlos Rodríguez', email: 'carlos@email.com', phone: '623 456 789', address: 'Av. Libertad 42, Barcelona', notes: '' },
+            { id: 3, name: 'Ana Martínez Ruiz', email: 'ana@email.com', phone: '634 567 890', address: 'Plaza España 8, Valencia', notes: 'Referida por Pedro' },
+            { id: 4, name: 'Pedro Sánchez Gil', email: 'pedro@email.com', phone: '645 678 901', address: 'Calle Luna 23, Sevilla', notes: '' },
+        ],
+        projects: [
+            { id: 1, name: 'Reforma Integral Cocina', clientId: 1, status: 'en_progreso', startDate: '2025-01-15', endDate: '2025-03-15', budget: 18500, realCost: 12300, progress: 65, description: 'Reforma completa de cocina incluyendo cambio de mobiliario, fontanería y electricidad', address: 'Calle Mayor 15, Madrid' },
+            { id: 2, name: 'Reforma Baño Principal', clientId: 2, status: 'pendiente', startDate: '2025-02-01', endDate: '2025-03-01', budget: 8500, realCost: 0, progress: 0, description: 'Cambio de sanitarios, alicatado y plato de ducha', address: 'Av. Libertad 42, Barcelona' },
+            { id: 3, name: 'Pintura Piso Completo', clientId: 3, status: 'completado', startDate: '2024-11-01', endDate: '2024-12-15', budget: 4200, realCost: 3800, progress: 100, description: 'Pintura de todas las habitaciones y zonas comunes', address: 'Plaza España 8, Valencia' },
+            { id: 4, name: 'Reforma Salón-Comedor', clientId: 1, status: 'en_progreso', startDate: '2025-02-01', endDate: '2025-04-30', budget: 22000, realCost: 8500, progress: 35, description: 'Tirar tabique, suelo nuevo, instalación eléctrica y pintura', address: 'Calle Mayor 15, Madrid' },
+            { id: 5, name: 'Terraza Exterior', clientId: 4, status: 'pendiente', startDate: '2025-04-01', endDate: '2025-05-15', budget: 12000, realCost: 0, progress: 0, description: 'Acondicionamiento de terraza con suelo, pérgola e iluminación', address: 'Calle Luna 23, Sevilla' },
+            { id: 6, name: 'Cambio Ventanas', clientId: 3, status: 'cancelado', startDate: '2025-01-10', endDate: '2025-02-10', budget: 6800, realCost: 500, progress: 5, description: 'Instalación de ventanas de PVC con rotura de puente térmico', address: 'Plaza España 8, Valencia' },
+        ],
+        tasks: [
+            { id: 1, projectId: 1, title: 'Demolición cocina antigua', done: true, priority: 'alta', dueDate: '2025-01-20' },
+            { id: 2, projectId: 1, title: 'Instalación fontanería', done: true, priority: 'alta', dueDate: '2025-01-30' },
+            { id: 3, projectId: 1, title: 'Instalación eléctrica', done: true, priority: 'alta', dueDate: '2025-02-05' },
+            { id: 4, projectId: 1, title: 'Alicatado paredes', done: false, priority: 'media', dueDate: '2025-02-20' },
+            { id: 5, projectId: 1, title: 'Montaje muebles cocina', done: false, priority: 'media', dueDate: '2025-03-01' },
+            { id: 6, projectId: 1, title: 'Instalación electrodomésticos', done: false, priority: 'baja', dueDate: '2025-03-10' },
+            { id: 7, projectId: 2, title: 'Comprar materiales', done: false, priority: 'alta', dueDate: '2025-01-28' },
+            { id: 8, projectId: 2, title: 'Demolición baño', done: false, priority: 'alta', dueDate: '2025-02-05' },
+            { id: 9, projectId: 4, title: 'Derribar tabique', done: true, priority: 'alta', dueDate: '2025-02-10' },
+            { id: 10, projectId: 4, title: 'Nivelación suelo', done: false, priority: 'alta', dueDate: '2025-02-25' },
+            { id: 11, projectId: 4, title: 'Instalación suelo laminado', done: false, priority: 'media', dueDate: '2025-03-10' },
+            { id: 12, projectId: 5, title: 'Diseño proyecto terraza', done: false, priority: 'media', dueDate: '2025-03-20' },
+            { id: 13, projectId: 3, title: 'Preparación superficies', done: true, priority: 'alta', dueDate: '2024-11-10' },
+            { id: 14, projectId: 3, title: 'Pintura primera mano', done: true, priority: 'media', dueDate: '2024-11-25' },
+            { id: 15, projectId: 3, title: 'Pintura segunda mano', done: true, priority: 'media', dueDate: '2024-12-10' },
+        ],
+        materials: [
+            { id: 1, projectId: 1, name: 'Azulejos porcelánicos', category: 'Cerámica', quantity: 25, unit: 'm²', unitPrice: 32, supplier: 'Cerámicas López' },
+            { id: 2, projectId: 1, name: 'Muebles cocina a medida', category: 'Mobiliario', quantity: 1, unit: 'ud', unitPrice: 4500, supplier: 'MueblesPlus' },
+            { id: 3, projectId: 1, name: 'Encimera granito', category: 'Mobiliario', quantity: 3.5, unit: 'ml', unitPrice: 280, supplier: 'Mármoles García' },
+            { id: 4, projectId: 1, name: 'Tuberías cobre', category: 'Fontanería', quantity: 15, unit: 'ml', unitPrice: 18, supplier: 'FontaShop' },
+            { id: 5, projectId: 1, name: 'Grifería monomando', category: 'Fontanería', quantity: 1, unit: 'ud', unitPrice: 185, supplier: 'FontaShop' },
+            { id: 6, projectId: 2, name: 'Plato ducha resina', category: 'Sanitarios', quantity: 1, unit: 'ud', unitPrice: 320, supplier: 'BañoTotal' },
+            { id: 7, projectId: 2, name: 'Mampara cristal', category: 'Sanitarios', quantity: 1, unit: 'ud', unitPrice: 450, supplier: 'BañoTotal' },
+            { id: 8, projectId: 3, name: 'Pintura plástica blanca', category: 'Pintura', quantity: 60, unit: 'L', unitPrice: 8.5, supplier: 'Pinturas Sol' },
+            { id: 9, projectId: 3, name: 'Pintura color (gris)', category: 'Pintura', quantity: 20, unit: 'L', unitPrice: 12, supplier: 'Pinturas Sol' },
+            { id: 10, projectId: 4, name: 'Suelo laminado roble', category: 'Pavimentos', quantity: 45, unit: 'm²', unitPrice: 28, supplier: 'SuelosMAX' },
+            { id: 11, projectId: 4, name: 'Base aislante', category: 'Pavimentos', quantity: 45, unit: 'm²', unitPrice: 4, supplier: 'SuelosMAX' },
+            { id: 12, projectId: 4, name: 'Cableado eléctrico', category: 'Electricidad', quantity: 80, unit: 'ml', unitPrice: 3.5, supplier: 'ElectroSur' },
+        ],
+        budgets: [
+            { id: 1, projectId: 1, number: 'PRES-2025-001', amount: 18500, status: 'aprobado', date: '2025-01-10', validUntil: '2025-02-10' },
+            { id: 2, projectId: 2, number: 'PRES-2025-002', amount: 8500, status: 'pendiente', date: '2025-01-20', validUntil: '2025-02-20' },
+            { id: 3, projectId: 3, number: 'PRES-2024-015', amount: 4200, status: 'aprobado', date: '2024-10-15', validUntil: '2024-11-15' },
+            { id: 4, projectId: 4, number: 'PRES-2025-003', amount: 22000, status: 'aprobado', date: '2025-01-25', validUntil: '2025-02-25' },
+            { id: 5, projectId: 5, number: 'PRES-2025-004', amount: 12000, status: 'enviado', date: '2025-02-15', validUntil: '2025-03-15' },
+            { id: 6, projectId: 6, number: 'PRES-2025-005', amount: 6800, status: 'rechazado', date: '2025-01-05', validUntil: '2025-02-05' },
+        ],
+        nextIds: { client: 5, project: 7, task: 16, material: 13, budget: 7 },
+        activities: [
+            { date: '2025-01-28', text: 'Se completó la instalación eléctrica en Reforma Cocina' },
+            { date: '2025-01-27', text: 'Nuevo presupuesto enviado para Terraza Exterior' },
+            { date: '2025-01-25', text: 'Se derribó el tabique en Reforma Salón-Comedor' },
+            { date: '2025-01-24', text: 'Cliente Ana Martínez aprobó presupuesto Pintura' },
+            { date: '2025-01-22', text: 'Materiales recibidos para Reforma Baño' },
+        ]
+    };
+    saveDB(db);
+    return db;
+}
+
+// ============ UTILITIES ============
+function formatCurrency(n) {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
+}
+
+function formatDate(d) {
+    if (!d) return '-';
+    return new Date(d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function getStatusBadge(status) {
+    const map = {
+        'pendiente': '<span class="badge badge-pending">Pendiente</span>',
+        'en_progreso': '<span class="badge badge-progress">En Progreso</span>',
+        'completado': '<span class="badge badge-completed">Completado</span>',
+        'cancelado': '<span class="badge badge-cancelled">Cancelado</span>',
+        'aprobado': '<span class="badge badge-completed">Aprobado</span>',
+        'enviado': '<span class="badge badge-progress">Enviado</span>',
+        'rechazado': '<span class="badge badge-cancelled">Rechazado</span>',
+    };
+    return map[status] || status;
+}
+
+function getStatusText(status) {
+    const map = {
+        'pendiente': 'Pendiente',
+        'en_progreso': 'En Progreso',
+        'completado': 'Completado',
+        'cancelado': 'Cancelado',
+    };
+    return map[status] || status;
+}
+
+function getProgressColor(p) {
+    if (p >= 80) return 'green';
+    if (p >= 40) return 'blue';
+    if (p >= 10) return 'orange';
+    return 'red';
+}
+
+function getClientName(id) {
+    const db = getDB();
+    const c = db.clients.find(c => c.id === id);
+    return c ? c.name : 'Desconocido';
+}
+
+function getProjectName(id) {
+    const db = getDB();
+    const p = db.projects.find(p => p.id === id);
+    return p ? p.name : 'Sin proyecto';
+}
+
+function notify(msg, type = 'success') {
+    const n = document.createElement('div');
+    n.className = `notification ${type}`;
+    n.textContent = msg;
+    document.body.appendChild(n);
+    setTimeout(() => n.remove(), 3000);
+}
+
+// ============ NAVIGATION ============
+function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${page}`).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event && event.target && event.target.closest('.nav-item')?.classList.add('active');
+    
+    // Reset detail views
+    if (page === 'proyectos') {
+        document.getElementById('proyectos-list-view').style.display = 'block';
+        document.getElementById('proyecto-detail-view').style.display = 'none';
+    }
+
+    renderPage(page);
+    closeSidebarMobile();
+}
+
+function renderPage(page) {
+    switch(page) {
+        case 'dashboard': renderDashboard(); break;
+        case 'proyectos': renderProjects(); break;
+        case 'clientes': renderClients(); break;
+        case 'presupuestos': renderBudgets(); break;
+        case 'tareas': renderTasks(); break;
+        case 'materiales': renderMaterials(); break;
+        case 'calendario': renderCalendar(); break;
+        case 'informes': renderReports(); break;
+    }
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+function closeSidebarMobile() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+// ============ DASHBOARD ============
+function renderDashboard() {
+    const db = getDB();
+
+    const totalProjects = db.projects.length;
+    const activeProjects = db.projects.filter(p => p.status === 'en_progreso').length;
+    const totalBudget = db.projects.reduce((s, p) => s + p.budget, 0);
+    const totalCosts = db.projects.reduce((s, p) => s + p.realCost, 0);
+    const pendingTasks = db.tasks.filter(t => !t.done).length;
+    const totalClients = db.clients.length;
+
+    document.getElementById('dashboardStats').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${totalProjects}</h3>
+                <p>Proyectos Totales</p>
+                <div class="stat-trend up">↗ ${activeProjects} activos</div>
+            </div>
+            <div class="stat-icon blue">🏠</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${formatCurrency(totalBudget)}</h3>
+                <p>Presupuesto Total</p>
+                <div class="stat-trend up">↗ Facturación</div>
+            </div>
+            <div class="stat-icon green">💰</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${pendingTasks}</h3>
+                <p>Tareas Pendientes</p>
+                <div class="stat-trend ${pendingTasks > 10 ? 'down' : 'up'}">⚡ Por completar</div>
+            </div>
+            <div class="stat-icon orange">✅</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${totalClients}</h3>
+                <p>Clientes</p>
+                <div class="stat-trend up">↗ Cartera</div>
+            </div>
+            <div class="stat-icon red">👥</div>
+        </div>
+    `;
+
+    // Bar chart
+    const months = ['Ene','Feb','Mar','Abr','May','Jun'];
+    const values = [8500, 12300, 18500, 9200, 15600, 22000];
+    const maxVal = Math.max(...values);
+    document.getElementById('barChart').innerHTML = months.map((m, i) => `
+        <div class="bar-group">
+            <div class="bar-value">${(values[i]/1000).toFixed(1)}k</div>
+            <div class="bar" style="height:${(values[i]/maxVal)*150}px; background:${i === months.length-1 ? 'var(--accent)' : 'var(--info)'}"></div>
+            <div class="bar-label">${m}</div>
+        </div>
+    `).join('');
+
+    // Donut chart
+    const statuses = {
+        'En Progreso': db.projects.filter(p => p.status === 'en_progreso').length,
+        'Pendiente': db.projects.filter(p => p.status === 'pendiente').length,
+        'Completado': db.projects.filter(p => p.status === 'completado').length,
+        'Cancelado': db.projects.filter(p => p.status === 'cancelado').length,
+    };
+    const colors = ['#3498db', '#f39c12', '#27ae60', '#e74c3c'];
+    const total = Object.values(statuses).reduce((a,b) => a+b, 0);
+    let offset = 0;
+    const circumference = 2 * Math.PI * 50;
+    let circles = '';
+    let legends = '';
+    Object.entries(statuses).forEach(([key, val], i) => {
+        const pct = val / total;
+        const dash = pct * circumference;
+        circles += `<circle cx="75" cy="75" r="50" fill="none" stroke="${colors[i]}" stroke-width="20" 
+            stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" />`;
+        offset += dash;
+        legends += `<div class="legend-item">
+            <span class="legend-color" style="background:${colors[i]}"></span>
+            ${key}: <strong>${val}</strong>
+        </div>`;
+    });
+    document.getElementById('donutChart').innerHTML = `
+        <svg class="donut-svg" viewBox="0 0 150 150">${circles}
+            <text x="75" y="80" text-anchor="middle" transform="rotate(90, 75, 75)" font-size="18" font-weight="bold" fill="var(--text)">${total}</text>
+        </svg>
+        <div class="donut-legend">${legends}</div>
+    `;
+
+    // Timeline
+    document.getElementById('recentTimeline').innerHTML = db.activities.slice(0, 5).map(a => `
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">${formatDate(a.date)}</div>
+            <div class="timeline-content">${a.text}</div>
+        </div>
+    `).join('');
+
+    // Dashboard tasks
+    const pendingTasksList = db.tasks.filter(t => !t.done).slice(0, 5);
+    document.getElementById('dashboardTasks').innerHTML = pendingTasksList.map(t => `
+        <li class="task-item">
+            <span class="priority-dot priority-${t.priority}"></span>
+            <div class="task-content">
+                <div class="task-title">${t.title}</div>
+                <div class="task-details">
+                    <span>${getProjectName(t.projectId)}</span>
+                    <span>📅 ${formatDate(t.dueDate)}</span>
+                </div>
+            </div>
+        </li>
+    `).join('') || '<p style="color:var(--text-light);text-align:center;padding:20px;">¡Sin tareas pendientes! 🎉</p>';
+}
+
+// ============ PROJECTS ============
+function renderProjects() {
+    const db = getDB();
+    let projects = [...db.projects];
+    
+    const statusFilter = document.getElementById('filterStatus').value;
+    const clientFilter = document.getElementById('filterClient').value;
+
+    if (statusFilter) projects = projects.filter(p => p.status === statusFilter);
+    if (clientFilter) projects = projects.filter(p => p.clientId == clientFilter);
+
+    // Update client filter
+    const clientSelect = document.getElementById('filterClient');
+    const currentVal = clientSelect.value;
+    clientSelect.innerHTML = '<option value="">Todos los clientes</option>' +
+        db.clients.map(c => `<option value="${c.id}" ${currentVal == c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+
+    const grid = document.getElementById('projectsGrid');
+    
+    if (projects.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+            <div class="icon">🏗️</div>
+            <p>No hay proyectos que coincidan con los filtros</p>
+            <button class="btn btn-primary" onclick="openModal('project')">➕ Crear Proyecto</button>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = projects.map(p => {
+        const materialCost = db.materials.filter(m => m.projectId === p.id)
+            .reduce((s, m) => s + (m.quantity * m.unitPrice), 0);
+        const tasksTotal = db.tasks.filter(t => t.projectId === p.id).length;
+        const tasksDone = db.tasks.filter(t => t.projectId === p.id && t.done).length;
+
+        return `
+        <div class="project-card">
+            <div class="project-card-top">
+                <div class="project-card-header">
+                    <div>
+                        <div class="project-card-title">${p.name}</div>
+                        <div class="project-card-client">👤 ${getClientName(p.clientId)}</div>
+                    </div>
+                    ${getStatusBadge(p.status)}
+                </div>
+                <p style="font-size:0.82rem;color:var(--text-light);margin-top:5px;">${p.description || ''}</p>
+            </div>
+            <div class="project-card-body">
+                <div class="project-meta">
+                    <div class="project-meta-item">
+                        <span>📅 Inicio</span>
+                        ${formatDate(p.startDate)}
+                    </div>
+                    <div class="project-meta-item">
+                        <span>📅 Fin</span>
+                        ${formatDate(p.endDate)}
+                    </div>
+                    <div class="project-meta-item">
+                        <span>💰 Presupuesto</span>
+                        ${formatCurrency(p.budget)}
+                    </div>
+                    <div class="project-meta-item">
+                        <span>💸 Gastado</span>
+                        <span class="${p.realCost > p.budget ? 'amount negative' : ''}">${formatCurrency(p.realCost)}</span>
+                    </div>
+                </div>
+                <div class="project-progress-info">
+                    <span>Progreso</span>
+                    <span>${p.progress}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill ${getProgressColor(p.progress)}" style="width:${p.progress}%"></div>
+                </div>
+                <div style="margin-top:10px; font-size:0.8rem; color:var(--text-light);">
+                    ✅ ${tasksDone}/${tasksTotal} tareas · 🧱 ${formatCurrency(materialCost)} en materiales
+                </div>
+            </div>
+            <div class="project-card-footer">
+                <button class="btn btn-outline btn-sm" onclick="viewProject(${p.id})">👁 Ver Detalle</button>
+                <div class="btn-group">
+                    <button class="btn btn-outline btn-sm" onclick="openModal('project', ${p.id})">✏️</button>
+                    <button class="btn btn-outline btn-sm" onclick="confirmDelete('project', ${p.id})" style="color:var(--danger)">🗑️</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function viewProject(id) {
+    const db = getDB();
+    const p = db.projects.find(pr => pr.id === id);
+    if (!p) return;
+
+    const client = db.clients.find(c => c.id === p.clientId);
+    const tasks = db.tasks.filter(t => t.projectId === id);
+    const materials = db.materials.filter(m => m.projectId === id);
+    const budget = db.budgets.find(b => b.projectId === id);
+    const materialCost = materials.reduce((s, m) => s + (m.quantity * m.unitPrice), 0);
+    const tasksDone = tasks.filter(t => t.done).length;
+
+    document.getElementById('proyectos-list-view').style.display = 'none';
+    const detail = document.getElementById('proyecto-detail-view');
+    detail.style.display = 'block';
+
+    detail.innerHTML = `
+        <div class="back-btn" onclick="showPage('proyectos')">← Volver a proyectos</div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+            <div>
+                <h1 class="page-title">${p.name}</h1>
+                <p class="page-subtitle">👤 ${client ? client.name : 'N/A'} · 📍 ${p.address || 'Sin dirección'}</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                ${getStatusBadge(p.status)}
+                <button class="btn btn-primary btn-sm" onclick="openModal('project', ${p.id})">✏️ Editar</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>${formatCurrency(p.budget)}</h3>
+                    <p>Presupuesto</p>
+                </div>
+                <div class="stat-icon blue">💰</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>${formatCurrency(p.realCost)}</h3>
+                    <p>Coste Real</p>
+                </div>
+                <div class="stat-icon ${p.realCost > p.budget ? 'red' : 'green'}">💸</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>${formatCurrency(materialCost)}</h3>
+                    <p>Materiales</p>
+                </div>
+                <div class="stat-icon orange">🧱</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>${p.progress}%</h3>
+                    <p>Progreso</p>
+                </div>
+                <div class="stat-icon green">📊</div>
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>✅ Tareas (${tasksDone}/${tasks.length})</h2>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('task', null, ${p.id})">➕ Añadir</button>
+                    </div>
+                    <div class="card-body">
+                        ${tasks.length > 0 ? `<ul class="task-list">
+                            ${tasks.map(t => `
+                                <li class="task-item">
+                                    <div class="task-check ${t.done ? 'done' : ''}" onclick="toggleTask(${t.id})">
+                                        ${t.done ? '✓' : ''}
+                                    </div>
+                                    <div class="task-content ${t.done ? 'done' : ''}">
+                                        <div class="task-title">${t.title}</div>
+                                        <div class="task-details">
+                                            <span class="priority-dot priority-${t.priority}"></span>
+                                            <span>${t.priority}</span>
+                                            <span>📅 ${formatDate(t.dueDate)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button class="btn btn-outline btn-sm" onclick="openModal('task', ${t.id})">✏️</button>
+                                        <button class="btn btn-outline btn-sm" onclick="confirmDelete('task', ${t.id})" style="color:var(--danger)">🗑️</button>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>` : '<p style="text-align:center;color:var(--text-light);padding:20px;">Sin tareas asignadas</p>'}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🧱 Materiales</h2>
+                        <button class="btn btn-primary btn-sm" onclick="openModal('material', null, ${p.id})">➕ Añadir</button>
+                    </div>
+                    <div class="card-body">
+                        ${materials.length > 0 ? `<table>
+                            <thead>
+                                <tr><th>Material</th><th>Cantidad</th><th>P. Unit.</th><th>Total</th></tr>
+                            </thead>
+                            <tbody>
+                                ${materials.map(m => `
+                                    <tr>
+                                        <td><strong>${m.name}</strong><br><small style="color:var(--text-light)">${m.category} · ${m.supplier}</small></td>
+                                        <td>${m.quantity} ${m.unit}</td>
+                                        <td>${formatCurrency(m.unitPrice)}</td>
+                                        <td class="amount">${formatCurrency(m.quantity * m.unitPrice)}</td>
+                                    </tr>
+                                `).join('')}
+                                <tr style="font-weight:700;background:#f8f9fa;">
+                                    <td colspan="3">TOTAL MATERIALES</td>
+                                    <td class="amount">${formatCurrency(materialCost)}</td>
+                                </tr>
+                            </tbody>
+                        </table>` : '<p style="text-align:center;color:var(--text-light);padding:20px;">Sin materiales registrados</p>'}
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-header"><h2>📋 Información</h2></div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Fecha Inicio</label>
+                                <p>${formatDate(p.startDate)}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Fecha Fin</label>
+                                <p>${formatDate(p.endDate)}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Dirección</label>
+                                <p>${p.address || '-'}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Margen</label>
+                                <p class="${p.budget - p.realCost >= 0 ? 'amount positive' : 'amount negative'}">${formatCurrency(p.budget - p.realCost)}</p>
+                            </div>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <label style="font-size:0.78rem;color:var(--text-light);">Descripción</label>
+                            <p style="font-size:0.88rem;margin-top:4px;">${p.description || 'Sin descripción'}</p>
+                        </div>
+                        <div style="margin-top:20px;">
+                            <label style="font-size:0.78rem;color:var(--text-light);">Progreso</label>
+                            <div class="progress-bar" style="margin-top:8px;height:12px;">
+                                <div class="progress-fill ${getProgressColor(p.progress)}" style="width:${p.progress}%"></div>
+                            </div>
+                            <div style="text-align:right;font-size:0.8rem;margin-top:4px;">${p.progress}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${client ? `
+                <div class="card">
+                    <div class="card-header"><h2>👤 Cliente</h2></div>
+                    <div class="card-body">
+                        <p style="font-weight:600;">${client.name}</p>
+                        <p style="font-size:0.85rem;color:var(--text-light);margin-top:5px;">📧 ${client.email}</p>
+                        <p style="font-size:0.85rem;color:var(--text-light);margin-top:3px;">📞 ${client.phone}</p>
+                        <p style="font-size:0.85rem;color:var(--text-light);margin-top:3px;">📍 ${client.address}</p>
+                    </div>
+                </div>` : ''}
+
+                ${budget ? `
+                <div class="card">
+                    <div class="card-header"><h2>📄 Presupuesto</h2></div>
+                    <div class="card-body">
+                        <p><strong>${budget.number}</strong></p>
+                        <p style="margin-top:5px;">${getStatusBadge(budget.status)}</p>
+                        <p style="font-size:0.85rem;margin-top:8px;">Importe: <strong>${formatCurrency(budget.amount)}</strong></p>
+                        <p style="font-size:0.85rem;margin-top:3px;color:var(--text-light);">Válido hasta: ${formatDate(budget.validUntil)}</p>
+                    </div>
+                </div>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function toggleTask(taskId) {
+    const db = getDB();
+    const task = db.tasks.find(t => t.id === taskId);
+    if (task) {
+        task.done = !task.done;
+        
+        // Update project progress
+        const projectTasks = db.tasks.filter(t => t.projectId === task.projectId);
+        const done = projectTasks.filter(t => t.done).length;
+        const project = db.projects.find(p => p.id === task.projectId);
+        if (project && projectTasks.length > 0) {
+            project.progress = Math.round((done / projectTasks.length) * 100);
+        }
+
+        saveDB(db);
+        notify(task.done ? 'Tarea completada ✓' : 'Tarea reabierta');
+        
+        // Re-render current view
+        const activePage = document.querySelector('.page.active').id.replace('page-', '');
+        renderPage(activePage);
+        
+        // If in project detail, re-render
+        if (document.getElementById('proyecto-detail-view').style.display !== 'none') {
+            viewProject(task.projectId);
+        }
+    }
+}
+
+// ============ CLIENTS ============
+function renderClients() {
+    const db = getDB();
+    document.getElementById('clientsTable').innerHTML = db.clients.map(c => {
+        const projectCount = db.projects.filter(p => p.clientId === c.id).length;
+        return `
+        <tr>
+            <td>
+                <strong>${c.name}</strong>
+                ${c.notes ? `<br><small style="color:var(--text-light)">${c.notes}</small>` : ''}
+            </td>
+            <td>📧 ${c.email}</td>
+            <td>📞 ${c.phone}</td>
+            <td>${c.address}</td>
+            <td><span class="badge badge-progress">${projectCount} proyecto(s)</span></td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-outline btn-sm" onclick="openModal('client', ${c.id})">✏️</button>
+                    <button class="btn btn-outline btn-sm" onclick="confirmDelete('client', ${c.id})" style="color:var(--danger)">🗑️</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="6" class="empty-state">Sin clientes registrados</td></tr>';
+}
+
+// ============ BUDGETS ============
+function renderBudgets() {
+    const db = getDB();
+
+    const totalBudgets = db.budgets.reduce((s, b) => s + b.amount, 0);
+    const approved = db.budgets.filter(b => b.status === 'aprobado');
+    const approvedTotal = approved.reduce((s, b) => s + b.amount, 0);
+    const pending = db.budgets.filter(b => b.status === 'pendiente' || b.status === 'enviado');
+
+    document.getElementById('budgetStats').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${db.budgets.length}</h3>
+                <p>Total Presupuestos</p>
+            </div>
+            <div class="stat-icon blue">📄</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${formatCurrency(approvedTotal)}</h3>
+                <p>Aprobados</p>
+            </div>
+            <div class="stat-icon green">✅</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${pending.length}</h3>
+                <p>Pendientes</p>
+            </div>
+            <div class="stat-icon orange">⏳</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${formatCurrency(totalBudgets)}</h3>
+                <p>Valor Total</p>
+            </div>
+            <div class="stat-icon red">💰</div>
+        </div>
+    `;
+
+    document.getElementById('budgetsTable').innerHTML = db.budgets.map(b => {
+        const project = db.projects.find(p => p.id === b.projectId);
+        const margin = project ? project.budget - project.realCost : 0;
+        return `
+        <tr>
+            <td><strong>${b.number}</strong></td>
+            <td>${project ? project.name : '-'}</td>
+            <td>${project ? getClientName(project.clientId) : '-'}</td>
+            <td class="amount">${formatCurrency(b.amount)}</td>
+            <td class="amount">${project ? formatCurrency(project.realCost) : '-'}</td>
+            <td class="amount ${margin >= 0 ? 'positive' : 'negative'}">${formatCurrency(margin)}</td>
+            <td>${getStatusBadge(b.status)}</td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-outline btn-sm" onclick="openModal('budget', ${b.id})">✏️</button>
+                    <button class="btn btn-outline btn-sm" onclick="confirmDelete('budget', ${b.id})" style="color:var(--danger)">🗑️</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+// ============ TASKS ============
+function renderTasks() {
+    const db = getDB();
+    let tasks = [...db.tasks];
+
+    // Update project filter
+    const projectSelect = document.getElementById('filterTaskProject');
+    const currentVal = projectSelect.value;
+    projectSelect.innerHTML = '<option value="">Todos los proyectos</option>' +
+        db.projects.map(p => `<option value="${p.id}" ${currentVal == p.id ? 'selected' : ''}>${p.name}</option>`).join('');
+
+    const projectFilter = document.getElementById('filterTaskProject').value;
+    const statusFilter = document.getElementById('filterTaskStatus').value;
+    const priorityFilter = document.getElementById('filterTaskPriority').value;
+
+    if (projectFilter) tasks = tasks.filter(t => t.projectId == projectFilter);
+    if (statusFilter === 'pending') tasks = tasks.filter(t => !t.done);
+    if (statusFilter === 'done') tasks = tasks.filter(t => t.done);
+    if (priorityFilter) tasks = tasks.filter(t => t.priority === priorityFilter);
+
+    // Sort: pending first, then by priority
+    const priorityOrder = { alta: 0, media: 1, baja: 2 };
+    tasks.sort((a, b) => {
+        if (a.done !== b.done) return a.done ? 1 : -1;
+        return (priorityOrder[a.priority] || 0) - (priorityOrder[b.priority] || 0);
+    });
+
+    document.getElementById('tasksList').innerHTML = tasks.map(t => `
+        <li class="task-item">
+            <div class="task-check ${t.done ? 'done' : ''}" onclick="toggleTask(${t.id})">
+                ${t.done ? '✓' : ''}
+            </div>
+            <div class="task-content ${t.done ? 'done' : ''}">
+                <div class="task-title">${t.title}</div>
+                <div class="task-details">
+                    <span class="priority-dot priority-${t.priority}"></span>
+                    <span>${t.priority}</span>
+                    <span>🏠 ${getProjectName(t.projectId)}</span>
+                    <span>📅 ${formatDate(t.dueDate)}</span>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline btn-sm" onclick="openModal('task', ${t.id})">✏️</button>
+                <button class="btn btn-outline btn-sm" onclick="confirmDelete('task', ${t.id})" style="color:var(--danger)">🗑️</button>
+            </div>
+        </li>
+    `).join('') || '<p style="text-align:center;color:var(--text-light);padding:30px;">No hay tareas que mostrar</p>';
+}
+
+// ============ MATERIALS ============
+function renderMaterials() {
+    const db = getDB();
+    const totalMaterials = db.materials.reduce((s, m) => s + (m.quantity * m.unitPrice), 0);
+    const categories = [...new Set(db.materials.map(m => m.category))];
+    const suppliers = [...new Set(db.materials.map(m => m.supplier))];
+
+    document.getElementById('materialSummary').innerHTML = `
+        <div class="material-stat">
+            <h4>${db.materials.length}</h4>
+            <p>Materiales Registrados</p>
+        </div>
+        <div class="material-stat">
+            <h4>${formatCurrency(totalMaterials)}</h4>
+            <p>Coste Total</p>
+        </div>
+        <div class="material-stat">
+            <h4>${categories.length}</h4>
+            <p>Categorías</p>
+        </div>
+        <div class="material-stat">
+            <h4>${suppliers.length}</h4>
+            <p>Proveedores</p>
+        </div>
+    `;
+
+    document.getElementById('materialsTable').innerHTML = db.materials.map(m => `
+        <tr>
+            <td><strong>${m.name}</strong></td>
+            <td><span class="badge badge-budget">${m.category}</span></td>
+            <td>${getProjectName(m.projectId)}</td>
+            <td>${m.quantity} ${m.unit}</td>
+            <td>${formatCurrency(m.unitPrice)}</td>
+            <td class="amount">${formatCurrency(m.quantity * m.unitPrice)}</td>
+            <td>${m.supplier}</td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-outline btn-sm" onclick="openModal('material', ${m.id})">✏️</button>
+                    <button class="btn btn-outline btn-sm" onclick="confirmDelete('material', ${m.id})" style="color:var(--danger)">🗑️</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// ============ CALENDAR ============
+let calendarDate = new Date();
+
+function renderCalendar() {
+    const db = getDB();
+    const year = calendarDate.getFullYear();
+    const month = calendarDate.getMonth();
+    const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    
+    document.getElementById('calendarTitle').textContent = `${months[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+
+    const days = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    let html = days.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+    // Adjust first day (Monday = 0)
+    const startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+    for (let i = 0; i < startDay; i++) {
+        html += '<div class="calendar-day" style="background:#f8f9fa;"></div>';
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
+
+        // Find events for this day
+        let events = '';
+        db.tasks.filter(t => t.dueDate === dateStr).forEach(t => {
+            events += `<div class="calendar-event ${t.done ? 'completed' : 'pending'}">${t.title}</div>`;
+        });
+        db.projects.filter(p => p.startDate === dateStr).forEach(p => {
+            events += `<div class="calendar-event" style="background:var(--primary)">🏠 ${p.name}</div>`;
+        });
+        db.projects.filter(p => p.endDate === dateStr).forEach(p => {
+            events += `<div class="calendar-event completed">✅ ${p.name}</div>`;
+        });
+
+        html += `<div class="calendar-day ${isToday ? 'today' : ''}">
+            <div class="day-number">${d}</div>
+            ${events}
+        </div>`;
+    }
+
+    document.getElementById('calendarGrid').innerHTML = html;
+}
+
+function changeMonth(delta) {
+    calendarDate.setMonth(calendarDate.getMonth() + delta);
+    renderCalendar();
+}
+
+// ============ REPORTS ============
+function renderReports() {
+    const db = getDB();
+    
+    const totalRevenue = db.projects.filter(p => p.status !== 'cancelado').reduce((s, p) => s + p.budget, 0);
+    const totalCosts = db.projects.reduce((s, p) => s + p.realCost, 0);
+    const totalMaterialCost = db.materials.reduce((s, m) => s + (m.quantity * m.unitPrice), 0);
+    const avgProgress = db.projects.length > 0 ? Math.round(db.projects.reduce((s, p) => s + p.progress, 0) / db.projects.length) : 0;
+
+    document.getElementById('reportStats').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${formatCurrency(totalRevenue)}</h3>
+                <p>Ingresos Totales</p>
+            </div>
+            <div class="stat-icon green">📈</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${formatCurrency(totalCosts)}</h3>
+                <p>Costes Totales</p>
+            </div>
+            <div class="stat-icon red">📉</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${formatCurrency(totalRevenue - totalCosts)}</h3>
+                <p>Beneficio</p>
+            </div>
+            <div class="stat-icon blue">💎</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>${avgProgress}%</h3>
+                <p>Progreso Medio</p>
+            </div>
+            <div class="stat-icon orange">📊</div>
+        </div>
+    `;
+
+    // Profit chart
+    const activeProjects = db.projects.filter(p => p.status !== 'cancelado');
+    const maxBudget = Math.max(...activeProjects.map(p => p.budget), 1);
+    document.getElementById('profitChart').innerHTML = `
+        <div class="bar-chart" style="height:160px;">
+            ${activeProjects.map(p => {
+                const margin = p.budget - p.realCost;
+                return `<div class="bar-group">
+                    <div class="bar-value" style="font-size:0.65rem;">${(margin/1000).toFixed(1)}k</div>
+                    <div class="bar" style="height:${(Math.abs(margin)/maxBudget)*130}px; background:${margin >= 0 ? 'var(--success)' : 'var(--danger)'}"></div>
+                    <div class="bar-label" style="font-size:0.65rem;">${p.name.substring(0,12)}...</div>
+                </div>`;
+            }).join('')}
+        </div>
+    `;
+
+    // Material category chart
+    const catCosts = {};
+    db.materials.forEach(m => {
+        catCosts[m.category] = (catCosts[m.category] || 0) + (m.quantity * m.unitPrice);
+    });
+    const maxCat = Math.max(...Object.values(catCosts), 1);
+    const catColors = ['#3498db','#e67e22','#27ae60','#e74c3c','#9b59b6','#1abc9c','#f39c12'];
+    document.getElementById('materialCategoryChart').innerHTML = `
+        <div class="bar-chart" style="height:160px;">
+            ${Object.entries(catCosts).map(([cat, cost], i) => `
+                <div class="bar-group">
+                    <div class="bar-value" style="font-size:0.65rem;">${formatCurrency(cost)}</div>
+                    <div class="bar" style="height:${(cost/maxCat)*130}px; background:${catColors[i % catColors.length]}"></div>
+                    <div class="bar-label" style="font-size:0.65rem;">${cat}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // Report table
+    document.getElementById('reportTable').innerHTML = db.projects.map(p => {
+        const matCost = db.materials.filter(m => m.projectId === p.id).reduce((s, m) => s + (m.quantity * m.unitPrice), 0);
+        const margin = p.budget - p.realCost;
+        return `
+        <tr>
+            <td><strong>${p.name}</strong></td>
+            <td>${getClientName(p.clientId)}</td>
+            <td class="amount">${formatCurrency(p.budget)}</td>
+            <td class="amount">${formatCurrency(p.realCost)}</td>
+            <td class="amount">${formatCurrency(matCost)}</td>
+            <td class="amount ${margin >= 0 ? 'positive' : 'negative'}">${formatCurrency(margin)}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="progress-bar" style="flex:1;"><div class="progress-fill ${getProgressColor(p.progress)}" style="width:${p.progress}%"></div></div>
+                    <span style="font-size:0.8rem;">${p.progress}%</span>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function exportReport() {
+    const db = getDB();
+    let csv = 'Proyecto,Cliente,Presupuesto,Coste Real,Materiales,Margen,Progreso\n';
+    db.projects.forEach(p => {
+        const matCost = db.materials.filter(m => m.projectId === p.id).reduce((s, m) => s + (m.quantity * m.unitPrice), 0);
+        csv += `"${p.name}","${getClientName(p.clientId)}",${p.budget},${p.realCost},${matCost},${p.budget - p.realCost},${p.progress}%\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'informe_reformas.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    notify('Informe exportado correctamente 📥');
+}
+
+// ============ MODALS ============
+let editingId = null;
+let defaultProjectId = null;
+
+function openModal(type, id = null, projectIdDefault = null) {
+    editingId = id;
+    defaultProjectId = projectIdDefault;
+    const db = getDB();
+    const overlay = document.getElementById('modalOverlay');
+    const title = document.getElementById('modalTitle');
+    const body = document.getElementById('modalBody');
+    const footer = document.getElementById('modalFooter');
+
+    switch(type) {
+        case 'project': {
+            const p = id ? db.projects.find(pr => pr.id === id) : null;
+            title.textContent = p ? '✏️ Editar Proyecto' : '🏠 Nuevo Proyecto';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>Nombre del Proyecto *</label>
+                    <input class="form-control" id="f_projName" value="${p ? p.name : ''}" placeholder="Ej: Reforma Integral Cocina">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cliente *</label>
+                        <select class="form-control" id="f_projClient">
+                            <option value="">Seleccionar...</option>
+                            ${db.clients.map(c => `<option value="${c.id}" ${p && p.clientId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select class="form-control" id="f_projStatus">
+                            <option value="pendiente" ${p && p.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="en_progreso" ${p && p.status === 'en_progreso' ? 'selected' : ''}>En Progreso</option>
+                            <option value="completado" ${p && p.status === 'completado' ? 'selected' : ''}>Completado</option>
+                            <option value="cancelado" ${p && p.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha Inicio</label>
+                        <input type="date" class="form-control" id="f_projStart" value="${p ? p.startDate : ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Fin</label>
+                        <input type="date" class="form-control" id="f_projEnd" value="${p ? p.endDate : ''}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Presupuesto (€)</label>
+                        <input type="number" class="form-control" id="f_projBudget" value="${p ? p.budget : ''}" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Coste Real (€)</label>
+                        <input type="number" class="form-control" id="f_projCost" value="${p ? p.realCost : 0}" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Progreso (%): <span id="progressVal">${p ? p.progress : 0}%</span></label>
+                    <input type="range" class="form-control" id="f_projProgress" min="0" max="100" value="${p ? p.progress : 0}" 
+                        style="padding:5px;" oninput="document.getElementById('progressVal').textContent=this.value+'%'">
+                </div>
+                <div class="form-group">
+                    <label>Dirección de la Obra</label>
+                    <input class="form-control" id="f_projAddress" value="${p ? p.address || '' : ''}" placeholder="Dirección...">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea class="form-control" id="f_projDesc" placeholder="Descripción del proyecto...">${p ? p.description || '' : ''}</textarea>
+                </div>
+            `;
+            footer.innerHTML = `
+                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveProject()">💾 ${p ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
+            `;
+            break;
+        }
+
+        case 'client': {
+            const c = id ? db.clients.find(cl => cl.id === id) : null;
+            title.textContent = c ? '✏️ Editar Cliente' : '👤 Nuevo Cliente';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input class="form-control" id="f_cliName" value="${c ? c.name : ''}" placeholder="Nombre y apellidos">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="f_cliEmail" value="${c ? c.email : ''}" placeholder="email@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input class="form-control" id="f_cliPhone" value="${c ? c.phone : ''}" placeholder="612 345 678">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input class="form-control" id="f_cliAddress" value="${c ? c.address : ''}" placeholder="Dirección completa">
+                </div>
+                <div class="form-group">
+                    <label>Notas</label>
+                    <textarea class="form-control" id="f_cliNotes" placeholder="Observaciones...">${c ? c.notes || '' : ''}</textarea>
+                </div>
+            `;
+            footer.innerHTML = `
+                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveClient()">💾 ${c ? 'Guardar Cambios' : 'Crear Cliente'}</button>
+            `;
+            break;
+        }
+
+        case 'task': {
+            const t = id ? db.tasks.find(tk => tk.id === id) : null;
+            const projId = t ? t.projectId : defaultProjectId;
+            title.textContent = t ? '✏️ Editar Tarea' : '✅ Nueva Tarea';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>Título de la Tarea *</label>
+                    <input class="form-control" id="f_taskTitle" value="${t ? t.title : ''}" placeholder="Descripción de la tarea">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Proyecto *</label>
+                        <select class="form-control" id="f_taskProject">
+                            <option value="">Seleccionar...</option>
+                            ${db.projects.map(p => `<option value="${p.id}" ${projId == p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad</label>
+                        <select class="form-control" id="f_taskPriority">
+                            <option value="alta" ${t && t.priority === 'alta' ? 'selected' : ''}>🔴 Alta</option>
+                            <option value="media" ${t && t.priority === 'media' ? 'selected' : ''} ${!t ? 'selected' : ''}>🟡 Media</option>
+                            <option value="baja" ${t && t.priority === 'baja' ? 'selected' : ''}>🟢 Baja</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fecha Límite</label>
+                    <input type="date" class="form-control" id="f_taskDue" value="${t ? t.dueDate : ''}">
+                </div>
+            `;
+            footer.innerHTML = `
+                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveTask()">💾 ${t ? 'Guardar' : 'Crear Tarea'}</button>
+            `;
+            break;
+        }
+
+        case 'material': {
+            const m = id ? db.materials.find(mt => mt.id === id) : null;
+            const projId = m ? m.projectId : defaultProjectId;
+            title.textContent = m ? '✏️ Editar Material' : '🧱 Nuevo Material';
+            body.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre del Material *</label>
+                        <input class="form-control" id="f_matName" value="${m ? m.name : ''}" placeholder="Ej: Azulejos porcelánicos">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select class="form-control" id="f_matCategory">
+                            ${['Cerámica','Pintura','Fontanería','Electricidad','Mobiliario','Sanitarios','Pavimentos','Ferretería','Otros']
+                                .map(c => `<option ${m && m.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Proyecto *</label>
+                    <select class="form-control" id="f_matProject">
+                        <option value="">Seleccionar...</option>
+                        ${db.projects.map(p => `<option value="${p.id}" ${projId == p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" step="0.01" class="form-control" id="f_matQty" value="${m ? m.quantity : ''}" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidad</label>
+                        <select class="form-control" id="f_matUnit">
+                            ${['ud','m²','ml','L','kg','m³'].map(u => `<option ${m && m.unit === u ? 'selected' : ''}>${u}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio Unitario (€)</label>
+                        <input type="number" step="0.01" class="form-control" id="f_matPrice" value="${m ? m.unitPrice : ''}" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Proveedor</label>
+                        <input class="form-control" id="f_matSupplier" value="${m ? m.supplier : ''}" placeholder="Nombre del proveedor">
+                    </div>
+                </div>
+            `;
+            footer.innerHTML = `
+                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveMaterial()">💾 ${m ? 'Guardar' : 'Crear Material'}</button>
+            `;
+            break;
+        }
+
+        case 'budget': {
+            const b = id ? db.budgets.find(bg => bg.id === id) : null;
+            title.textContent = b ? '✏️ Editar Presupuesto' : '💰 Nuevo Presupuesto';
+            const nextNum = `PRES-${new Date().getFullYear()}-${String(db.nextIds.budget).padStart(3, '0')}`;
+            body.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Número</label>
+                        <input class="form-control" id="f_budNum" value="${b ? b.number : nextNum}" ${b ? '' : ''}>
+                    </div>
+                    <div class="form-group">
+                        <label>Proyecto *</label>
+                        <select class="form-control" id="f_budProject">
+                            <option value="">Seleccionar...</option>
+                            ${db.projects.map(p => `<option value="${p.id}" ${b && b.projectId === p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Importe (€) *</label>
+                        <input type="number" step="0.01" class="form-control" id="f_budAmount" value="${b ? b.amount : ''}" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select class="form-control" id="f_budStatus">
+                            <option value="pendiente" ${b && b.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="enviado" ${b && b.status === 'enviado' ? 'selected' : ''}>Enviado</option>
+                            <option value="aprobado" ${b && b.status === 'aprobado' ? 'selected' : ''}>Aprobado</option>
+                            <option value="rechazado" ${b && b.status === 'rechazado' ? 'selected' : ''}>Rechazado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" class="form-control" id="f_budDate" value="${b ? b.date : new Date().toISOString().split('T')[0]}">
+                    </div>
+                    <div class="form-group">
+                        <label>Válido Hasta</label>
+                        <input type="date" class="form-control" id="f_budValid" value="${b ? b.validUntil : ''}">
+                    </div>
+                </div>
+            `;
+            footer.innerHTML = `
+                <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveBudget()">💾 ${b ? 'Guardar' : 'Crear Presupuesto'}</button>
+            `;
+            break;
+        }
+    }
+
+    overlay.classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+    editingId = null;
+    defaultProjectId = null;
+}
+
+// ============ SAVE FUNCTIONS ============
+function saveProject() {
+    const db = getDB();
+    const data = {
+        name: document.getElementById('f_projName').value.trim(),
+        clientId: parseInt(document.getElementById('f_projClient').value),
+        status: document.getElementById('f_projStatus').value,
+        startDate: document.getElementById('f_projStart').value,
+        endDate: document.getElementById('f_projEnd').value,
+        budget: parseFloat(document.getElementById('f_projBudget').value) || 0,
+        realCost: parseFloat(document.getElementById('f_projCost').value) || 0,
+        progress: parseInt(document.getElementById('f_projProgress').value) || 0,
+        address: document.getElementById('f_projAddress').value.trim(),
+        description: document.getElementById('f_projDesc').value.trim(),
+    };
+
+    if (!data.name || !data.clientId) {
+        notify('Por favor, completa los campos obligatorios', 'error');
+        return;
+    }
+
+    if (editingId) {
+        const idx = db.projects.findIndex(p => p.id === editingId);
+        if (idx !== -1) {
+            db.projects[idx] = { ...db.projects[idx], ...data };
+        }
+        notify('Proyecto actualizado correctamente');
+    } else {
+        data.id = db.nextIds.project++;
+        db.projects.push(data);
+        db.activities.unshift({ date: new Date().toISOString().split('T')[0], text: `Nuevo proyecto creado: ${data.name}` });
+        notify('Proyecto creado correctamente');
+    }
+
+    saveDB(db);
+    closeModal();
+    renderProjects();
+}
+
+function saveClient() {
+    const db = getDB();
+    const data = {
+        name: document.getElementById('f_cliName').value.trim(),
+        email: document.getElementById('f_cliEmail').value.trim(),
+        phone: document.getElementById('f_cliPhone').value.trim(),
+        address: document.getElementById('f_cliAddress').value.trim(),
+        notes: document.getElementById('f_cliNotes').value.trim(),
+    };
+
+    if (!data.name) {
+        notify('El nombre es obligatorio', 'error');
+        return;
+    }
+
+    if (editingId) {
+        const idx = db.clients.findIndex(c => c.id === editingId);
+        if (idx !== -1) db.clients[idx] = { ...db.clients[idx], ...data };
+        notify('Cliente actualizado');
+    } else {
+        data.id = db.nextIds.client++;
+        db.clients.push(data);
+        notify('Cliente creado correctamente');
+    }
+
+    saveDB(db);
+    closeModal();
+    renderClients();
+}
+
+function saveTask() {
+    const db = getDB();
+    const data = {
+        title: document.getElementById('f_taskTitle').value.trim(),
+        projectId: parseInt(document.getElementById('f_taskProject').value),
+        priority: document.getElementById('f_taskPriority').value,
+        dueDate: document.getElementById('f_taskDue').value,
+    };
+
+    if (!data.title || !data.projectId) {
+        notify('Título y proyecto son obligatorios', 'error');
+        return;
+    }
+
+    if (editingId) {
+        const idx = db.tasks.findIndex(t => t.id === editingId);
+        if (idx !== -1) db.tasks[idx] = { ...db.tasks[idx], ...data };
+        notify('Tarea actualizada');
+    } else {
+        data.id = db.nextIds.task++;
+        data.done = false;
+        db.tasks.push(data);
+        notify('Tarea creada correctamente');
+    }
+
+    // Recalculate project progress
+    const projectTasks = db.tasks.filter(t => t.projectId === data.projectId);
+    const done = projectTasks.filter(t => t.done).length;
+    const project = db.projects.find(p => p.id === data.projectId);
+    if (project && projectTasks.length > 0) {
+        project.progress = Math.round((done / projectTasks.length) * 100);
+    }
+
+    saveDB(db);
+    closeModal();
+    
+    const activePage = document.querySelector('.page.active').id.replace('page-', '');
+    renderPage(activePage);
+    
+    if (document.getElementById('proyecto-detail-view').style.display !== 'none') {
+        viewProject(data.projectId);
+    }
+}
+
+function saveMaterial() {
+    const db = getDB();
+    const data = {
+        name: document.getElementById('f_matName').value.trim(),
+        category: document.getElementById('f_matCategory').value,
+        projectId: parseInt(document.getElementById('f_matProject').value),
+        quantity: parseFloat(document.getElementById('f_matQty').value) || 0,
+        unit: document.getElementById('f_matUnit').value,
+        unitPrice: parseFloat(document.getElementById('f_matPrice').value) || 0,
+        supplier: document.getElementById('f_matSupplier').value.trim(),
+    };
+
+    if (!data.name || !data.projectId) {
+        notify('Nombre y proyecto son obligatorios', 'error');
+        return;
+    }
+
+    if (editingId) {
+        const idx = db.materials.findIndex(m => m.id === editingId);
+        if (idx !== -1) db.materials[idx] = { ...db.materials[idx], ...data };
+        notify('Material actualizado');
+    } else {
+        data.id = db.nextIds.material++;
+        db.materials.push(data);
+        notify('Material registrado correctamente');
+    }
+
+    saveDB(db);
+    closeModal();
+    
+    const activePage = document.querySelector('.page.active').id.replace('page-', '');
+    renderPage(activePage);
+    
+    if (document.getElementById('proyecto-detail-view').style.display !== 'none') {
+        viewProject(data.projectId);
+    }
+}
+
+function saveBudget() {
+    const db = getDB();
+    const data = {
+        number: document.getElementById('f_budNum').value.trim(),
+        projectId: parseInt(document.getElementById('f_budProject').value),
+        amount: parseFloat(document.getElementById('f_budAmount').value) || 0,
+        status: document.getElementById('f_budStatus').value,
+        date: document.getElementById('f_budDate').value,
+        validUntil: document.getElementById('f_budValid').value,
+    };
+
+    if (!data.projectId || !data.amount) {
+        notify('Proyecto e importe son obligatorios', 'error');
+        return;
+    }
+
+    if (editingId) {
+        const idx = db.budgets.findIndex(b => b.id === editingId);
+        if (idx !== -1) db.budgets[idx] = { ...db.budgets[idx], ...data };
+        notify('Presupuesto actualizado');
+    } else {
+        data.id = db.nextIds.budget++;
+        db.budgets.push(data);
+        db.activities.unshift({ date: new Date().toISOString().split('T')[0], text: `Nuevo presupuesto ${data.number} creado` });
+        notify('Presupuesto creado correctamente');
+    }
+
+    saveDB(db);
+    closeModal();
+    renderBudgets();
+}
+
+// ============ DELETE ============
+let deleteCallback = null;
+
+function confirmDelete(type, id) {
+    const overlay = document.getElementById('confirmOverlay');
+    const msg = document.getElementById('confirmMessage');
+    const btn = document.getElementById('confirmBtn');
+
+    const messages = {
+        project: '¿Estás seguro de eliminar este proyecto? Se eliminarán también sus tareas y materiales asociados.',
+        client: '¿Estás seguro de eliminar este cliente?',
+        task: '¿Estás seguro de eliminar esta tarea?',
+        material: '¿Estás seguro de eliminar este material?',
+        budget: '¿Estás seguro de eliminar este presupuesto?',
+    };
+
+    msg.textContent = messages[type];
+    overlay.classList.add('show');
+
+    deleteCallback = () => {
+        const db = getDB();
+        switch(type) {
+            case 'project':
+                db.projects = db.projects.filter(p => p.id !== id);
+                db.tasks = db.tasks.filter(t => t.projectId !== id);
+                db.materials = db.materials.filter(m => m.projectId !== id);
+                db.budgets = db.budgets.filter(b => b.projectId !== id);
+                break;
+            case 'client':
+                db.clients = db.clients.filter(c => c.id !== id);
+                break;
+            case 'task':
+                const task = db.tasks.find(t => t.id === id);
+                db.tasks = db.tasks.filter(t => t.id !== id);
+                // Recalc progress
+                if (task) {
+                    const projectTasks = db.tasks.filter(t => t.projectId === task.projectId);
+                    const done = projectTasks.filter(t => t.done).length;
+                    const project = db.projects.find(p => p.id === task.projectId);
+                    if (project) {
+                        project.progress = projectTasks.length > 0 ? Math.round((done / projectTasks.length) * 100) : 0;
+                    }
+                }
+                break;
+            case 'material':
+                db.materials = db.materials.filter(m => m.id !== id);
+                break;
+            case 'budget':
+                db.budgets = db.budgets.filter(b => b.id !== id);
+                break;
+        }
+        saveDB(db);
+        closeConfirm();
+        notify('Elemento eliminado', 'info');
+        
+        const activePage = document.querySelector('.page.active').id.replace('page-', '');
+        renderPage(activePage);
+        
+        if (type === 'project') {
+            document.getElementById('proyectos-list-view').style.display = 'block';
+            document.getElementById('proyecto-detail-view').style.display = 'none';
+        }
+        
+        if ((type === 'task' || type === 'material') && document.getElementById('proyecto-detail-view').style.display !== 'none') {
+            const projectId = type === 'task' ? 
+                (db.tasks.length > 0 ? db.tasks[0].projectId : null) : 
+                (db.materials.length > 0 ? db.materials[0].projectId : null);
+            // Just re-render projects view
+            if (task && task.projectId) viewProject(task.projectId);
+        }
+    };
+
+    btn.onclick = deleteCallback;
+}
+
+function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    deleteCallback = null;
+}
+
+// ============ SEARCH ============
+function globalSearchHandler(e) {
+    const term = e.target.value.toLowerCase().trim();
+    if (!term || term.length < 2) return;
+    
+    const db = getDB();
+    const results = db.projects.filter(p => 
+        p.name.toLowerCase().includes(term) || 
+        p.description?.toLowerCase().includes(term)
+    );
+    
+    if (results.length > 0) {
+        showPage('proyectos');
+        // Quick filter
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterClient').value = '';
+        renderProjects();
+    }
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+    renderDashboard();
+});
+</script>
+</body>
+</html>
 
