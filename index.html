@@ -2933,8 +2933,21 @@ function globalSearchHandler(e) {
 document.addEventListener('DOMContentLoaded', () => {
     renderDashboard();
 });
+    <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("/sw.js")
+      .then(function () {
+        console.log("Service Worker registrado correctamente");
+      })
+      .catch(function (error) {
+        console.log("Error registrando Service Worker:", error);
+      });
+  });
+}
 </script>
 </body>
 </html>
+
 
 
